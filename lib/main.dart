@@ -4,6 +4,7 @@ import 'knowledge_page.dart';
 import 'progress.dart';
 import 'schedule_page.dart';
 import 'guided_sessions_page.dart';
+import 'bottom_nav_bar.dart'; // <-- IMPORT YOUR NEW FILE
 
 void main() {
   runApp(PranahutiApp());
@@ -35,6 +36,9 @@ class _HomePageState extends State<HomePage>
   final Color orangeAccent = const Color(0xFFFF8C00);
   final Color cardText = const Color(0xFF7A4E00);
   final Color timeChipColor = const Color(0xFFF6F3DC);
+
+  // Define the current index for this page
+  final int _currentIndex = 0; // Home is at index 0
 
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -127,7 +131,6 @@ class _HomePageState extends State<HomePage>
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 40),
                 const Text(
                   "Welcome to Your Spiritual Journey",
@@ -161,7 +164,6 @@ class _HomePageState extends State<HomePage>
                     final cardWidth = isSmallScreen
                         ? screenWidth
                         : (screenWidth / 2) - 24;
-
                     return Wrap(
                       spacing: 16,
                       runSpacing: 16,
@@ -180,7 +182,7 @@ class _HomePageState extends State<HomePage>
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      bottomNavigationBar: buildBottomNavigationBar(context, _currentIndex), // <-- UPDATED LINE
     );
   }
 
@@ -273,66 +275,6 @@ class _HomePageState extends State<HomePage>
           color: Colors.orange.shade100,
           blurRadius: 8,
           offset: const Offset(0, 4),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.deepOrange,
-      unselectedItemColor: Colors.orange.shade300,
-      type: BottomNavigationBarType.fixed,
-      onTap: (index) {
-        if (index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => SchedulePage()),
-          );
-        } else if (index == 2) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => GuidedSessions()),
-          );
-        } else if (index == 3) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => ProgressPage()),
-          );
-        } else if (index == 4) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => KnowledgePage()),
-          );
-        } else if (index == 5) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => GuidePage()),
-          );
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_month),
-          label: "Schedule",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.access_time),
-          label: "Sessions",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.show_chart),
-          label: "Progress",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.menu_book),
-          label: "Knowledge",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble_outline),
-          label: "Guide",
         ),
       ],
     );

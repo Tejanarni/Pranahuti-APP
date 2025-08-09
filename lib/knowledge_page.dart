@@ -4,6 +4,7 @@ import 'main.dart';
 import 'guided_sessions_page.dart';
 import 'progress.dart';
 import 'schedule_page.dart';
+import 'bottom_nav_bar.dart'; // <-- IMPORT YOUR NEW FILE
 
 class KnowledgePage extends StatefulWidget {
   const KnowledgePage({super.key});
@@ -15,11 +16,15 @@ class KnowledgePage extends StatefulWidget {
 class _KnowledgePageState extends State<KnowledgePage> {
   String selectedTab = "Teachings";
 
+  // Define the current index for this page
+  final int _currentIndex = 4; // Knowledge is at index 4
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDF6EE),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      // Use the separated bottom navigation bar
+      bottomNavigationBar: buildBottomNavigationBar(context, _currentIndex),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -327,67 +332,6 @@ class _KnowledgePageState extends State<KnowledgePage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 4,
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.deepOrange,
-      unselectedItemColor: Colors.orange.shade300,
-      type: BottomNavigationBarType.fixed,
-      onTap: (index) {
-        if (index == 0) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomePage()),
-          );
-        } else if (index == 1) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SchedulePage()),
-          );
-        } else if (index == 2) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const GuidedSessions()),
-          );
-        } else if (index == 3) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const ProgressPage()),
-          );
-        } else if (index == 5) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const GuidePage()),
-          );
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_month),
-          label: "Schedule",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.access_time),
-          label: "Sessions",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.show_chart),
-          label: "Progress",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.menu_book),
-          label: "Knowledge",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble_outline),
-          label: "Guide",
-        ),
-      ],
     );
   }
 }

@@ -5,9 +5,13 @@ import 'schedule_page.dart';
 import 'progress.dart';
 import 'knowledge_page.dart';
 import 'guided_sessions_page.dart';
+import 'bottom_nav_bar.dart'; // <-- IMPORT YOUR NEW FILE
 
 class GuidePage extends StatelessWidget {
   const GuidePage({super.key});
+
+  // Define the current index for this page
+  final int _currentIndex = 5; // Guide is at index 5
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +94,7 @@ class GuidePage extends StatelessWidget {
                           decoration: InputDecoration(
                             border: InputBorder.none,
                             hintText:
-                                'Ask about your practice, seek guidance, or share your experience...',
+                            'Ask about your practice, seek guidance, or share your experience...',
                             hintStyle: TextStyle(fontSize: 14),
                           ),
                         ),
@@ -132,7 +136,7 @@ class GuidePage extends StatelessWidget {
               // Quick Guidance Tiles
               const GuidanceTile(
                 text:
-                    "I'm feeling distracted during meditation. What should I do?",
+                "I'm feeling distracted during meditation. What should I do?",
               ),
               const GuidanceTile(text: "Explain today’s 9 PM prayer meaning"),
               const GuidanceTile(
@@ -177,68 +181,7 @@ class GuidePage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 5,
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.deepOrange,
-      unselectedItemColor: Colors.orange.shade300,
-      type: BottomNavigationBarType.fixed,
-      onTap: (index) {
-        if (index == 0) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomePage()),
-          );
-        } else if (index == 1) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SchedulePage()),
-          );
-        } else if (index == 2) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const GuidedSessions()),
-          );
-        } else if (index == 3) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const ProgressPage()),
-          );
-        } else if (index == 4) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const KnowledgePage()),
-          );
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_month),
-          label: "Schedule",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.access_time),
-          label: "Sessions",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.show_chart),
-          label: "Progress",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.menu_book),
-          label: "Knowledge",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble_outline),
-          label: "Guide",
-        ),
-      ],
+      bottomNavigationBar: buildBottomNavigationBar(context, _currentIndex),
     );
   }
 }
@@ -256,7 +199,7 @@ class GuidanceTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFFAF2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color(0xFFFFE0B3)),
+        border: Border.all(color: const Color(0xFFFFE0B3)),
       ),
       child: Text(
         text,

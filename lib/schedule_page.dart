@@ -1,16 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:innerpeaceguide/guide_page.dart';
-import 'package:innerpeaceguide/guided_sessions_page.dart';
-import 'package:innerpeaceguide/knowledge_page.dart';
-import 'package:innerpeaceguide/progress.dart';
-import 'main.dart';
+import 'bottom_nav_bar.dart';
 
-class SchedulePage extends StatelessWidget {
+// Convert SchedulePage to a StatefulWidget to manage the state of the switches.
+class SchedulePage extends StatefulWidget {
+  const SchedulePage({super.key});
+
+  @override
+  State<SchedulePage> createState() => _SchedulePageState();
+}
+
+class _SchedulePageState extends State<SchedulePage> {
   final Color backgroundTop = const Color(0xFFFFFBF5);
   final Color backgroundBottom = const Color(0xFFFFF4DC);
   final Color cardColor = Colors.white;
   final Color labelColor = const Color(0xFF7A4E00);
   final Color orangeAccent = const Color(0xFFFF8C00);
+
+  // State variables for the switches
+  bool _morningMeditationEnabled = true;
+  bool _eveningCleaningEnabled = true;
+  bool _ninePmPrayerEnabled = true;
+  bool _nightMeditationEnabled = true;
+
+  bool _gentleTonesEnabled = true;
+  bool _vibrationRemindersEnabled = true;
+  bool _silentModeEnabled = false;
+
+  // State variables for practice times
+  TimeOfDay _morningMeditationTime = const TimeOfDay(hour: 6, minute: 0);
+  TimeOfDay _eveningCleaningTime = const TimeOfDay(hour: 19, minute: 0);
+  TimeOfDay _ninePmPrayerTime = const TimeOfDay(hour: 21, minute: 0);
+  TimeOfDay _nightMeditationTime = const TimeOfDay(hour: 22, minute: 30);
+
+  // Define the current index for this page
+  final int _currentIndex = 1; // Schedule is at index 1
+
+  // Helper to format TimeOfDay to a string
+  String _formatTime(TimeOfDay time) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return MaterialLocalizations.of(context).formatTimeOfDay(time, alwaysUse24HourFormat: true);
+  }
+
+  // Generic function to show the time picker and update state
+  Future<void> _selectTime(BuildContext context, ValueChanged<TimeOfDay> onTimeSelected) async {
+    final TimeOfDay? newTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData(
+            colorScheme: ColorScheme.light(
+              primary: orangeAccent, // Header background color
+              onPrimary: Colors.white, // Header text color
+              onSurface: labelColor, // Clock dial text color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (newTime != null) {
+      onTimeSelected(newTime);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,38 +148,83 @@ class SchedulePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
 
+                // Reminder cards with working switches and time picker
                 _buildReminderCard(
                   icon: Icons.wb_sunny_outlined,
                   iconColor: Colors.orange.shade300,
                   title: 'Morning Meditation',
                   subtitle: 'Point B Meditation before sunrise',
-                  time: '06:00',
+                  time: _morningMeditationTime,
+                  value: _morningMeditationEnabled,
+                  onTimeSelected: (newTime) {
+                    setState(() {
+                      _morningMeditationTime = newTime;
+                    });
+                  },
+                  onChanged: (bool value) {
+                    setState(() {
+                      _morningMeditationEnabled = value;
+                    });
+                  },
                 ),
                 _buildReminderCard(
                   icon: Icons.nights_stay,
                   iconColor: Colors.purple.shade200,
                   title: 'Evening Cleaning',
                   subtitle: 'Heart cleaning after sunset',
-                  time: '19:00',
+                  time: _eveningCleaningTime,
+                  value: _eveningCleaningEnabled,
+                  onTimeSelected: (newTime) {
+                    setState(() {
+                      _eveningCleaningTime = newTime;
+                    });
+                  },
+                  onChanged: (bool value) {
+                    setState(() {
+                      _eveningCleaningEnabled = value;
+                    });
+                  },
                 ),
                 _buildReminderCard(
                   icon: Icons.brightness_3_outlined,
                   iconColor: Colors.pink.shade200,
                   title: '9 PM Prayer',
                   subtitle: 'Universal prayer for all',
-                  time: '21:00',
+                  time: _ninePmPrayerTime,
+                  value: _ninePmPrayerEnabled,
+                  onTimeSelected: (newTime) {
+                    setState(() {
+                      _ninePmPrayerTime = newTime;
+                    });
+                  },
+                  onChanged: (bool value) {
+                    setState(() {
+                      _ninePmPrayerEnabled = value;
+                    });
+                  },
                 ),
                 _buildReminderCard(
                   icon: Icons.bedtime,
                   iconColor: Colors.blue.shade200,
                   title: 'Night Meditation',
                   subtitle: 'Point A Meditation before sleep',
-                  time: '22:30',
+                  time: _nightMeditationTime,
+                  value: _nightMeditationEnabled,
+                  onTimeSelected: (newTime) {
+                    setState(() {
+                      _nightMeditationTime = newTime;
+                    });
+                  },
+                  onChanged: (bool value) {
+                    setState(() {
+                      _nightMeditationEnabled = value;
+                    });
+                  },
                 ),
 
                 const SizedBox(height: 16),
 
-                // Notification Settings
+                // Notification Settings with working switches
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: _cardDecoration(),
@@ -144,12 +242,30 @@ class SchedulePage extends StatelessWidget {
                       const SizedBox(height: 12),
                       _buildNotificationSetting(
                         "Gentle notification tones",
-                        true,
+                        _gentleTonesEnabled,
+                            (bool value) {
+                          setState(() {
+                            _gentleTonesEnabled = value;
+                          });
+                        },
                       ),
-                      _buildNotificationSetting("Vibration reminders", true),
+                      _buildNotificationSetting(
+                        "Vibration reminders",
+                        _vibrationRemindersEnabled,
+                            (bool value) {
+                          setState(() {
+                            _vibrationRemindersEnabled = value;
+                          });
+                        },
+                      ),
                       _buildNotificationSetting(
                         "Silent mode (weekends)",
-                        false,
+                        _silentModeEnabled,
+                            (bool value) {
+                          setState(() {
+                            _silentModeEnabled = value;
+                          });
+                        },
                       ),
                     ],
                   ),
@@ -160,7 +276,7 @@ class SchedulePage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      bottomNavigationBar: buildBottomNavigationBar(context, _currentIndex),
     );
   }
 
@@ -169,92 +285,98 @@ class SchedulePage extends StatelessWidget {
     required Color iconColor,
     required String title,
     required String subtitle,
-    required String time,
+    required TimeOfDay time,
+    required bool value,
+    required ValueChanged<TimeOfDay> onTimeSelected,
+    required ValueChanged<bool> onChanged,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      decoration: _cardDecoration(),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: iconColor.withOpacity(0.2),
-                child: Icon(icon, color: iconColor),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(fontSize: 11, color: Colors.brown),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: const [
-                      Icon(
-                        Icons.notifications_none,
-                        size: 14,
-                        color: Colors.orange,
-                      ),
-                      SizedBox(width: 4),
-                      Text("Reminder time:", style: TextStyle(fontSize: 11)),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Column(
-            children: [
-              Switch(value: true, onChanged: (_) {}),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+    return GestureDetector(
+      onTap: () => _selectTime(context, onTimeSelected),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        decoration: _cardDecoration(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: iconColor.withOpacity(0.2),
+                  child: Icon(icon, color: iconColor),
                 ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF6F3DC),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      time,
-                      style: const TextStyle(fontSize: 12, color: Colors.brown),
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.access_time,
-                      size: 14,
-                      color: Colors.brown,
+                    Text(
+                      subtitle,
+                      style: const TextStyle(fontSize: 11, color: Colors.brown),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: const [
+                        Icon(
+                          Icons.notifications_none,
+                          size: 14,
+                          color: Colors.orange,
+                        ),
+                        SizedBox(width: 4),
+                        Text("Reminder time:", style: TextStyle(fontSize: 11)),
+                      ],
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            Column(
+              children: [
+                Switch(value: value, onChanged: onChanged),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF6F3DC),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        _formatTime(time),
+                        style: const TextStyle(fontSize: 12, color: Colors.brown),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(
+                        Icons.access_time,
+                        size: 14,
+                        color: Colors.brown,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildNotificationSetting(String text, bool value) {
+  Widget _buildNotificationSetting(String text, bool value, ValueChanged<bool> onChanged) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(text, style: const TextStyle(fontSize: 13)),
-        Switch(value: value, onChanged: (_) {}),
+        Switch(value: value, onChanged: onChanged),
       ],
     );
   }
@@ -268,69 +390,6 @@ class SchedulePage extends StatelessWidget {
           color: Colors.orange.shade100,
           blurRadius: 8,
           offset: const Offset(0, 4),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: 1,
-      backgroundColor: Colors.white,
-      selectedItemColor: Colors.deepOrange,
-      unselectedItemColor: Colors.orange.shade300,
-      type: BottomNavigationBarType.fixed,
-      onTap: (index) {
-        if (index == 0) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomePage()),
-          );
-        } else if (index == 1) {
-          // Do nothing (current page)
-        } else if (index == 2) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const GuidedSessions()),
-          );
-        } else if (index == 3) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ProgressPage()),
-          );
-        } else if (index == 4) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const KnowledgePage()),
-          );
-        } else if (index == 5) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const GuidePage()),
-          );
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_month),
-          label: "Schedule",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.access_time),
-          label: "Sessions",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.show_chart),
-          label: "Progress",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.menu_book),
-          label: "Knowledge",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble_outline),
-          label: "Guide",
         ),
       ],
     );
