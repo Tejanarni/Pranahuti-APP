@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'bottom_nav_bar.dart';
+import 'progress.dart'; // Import ProgressPage and SessionLog
 
 // Convert SchedulePage to a StatefulWidget to manage the state of the switches.
 class SchedulePage extends StatefulWidget {
@@ -63,6 +64,26 @@ class _SchedulePageState extends State<SchedulePage> {
     if (newTime != null) {
       onTimeSelected(newTime);
     }
+  }
+
+  // Function to handle "Mark as Done" button press
+  void _markAsDone(String sessionTitle) {
+    final sessionLog = SessionLog(
+      sessionTitle: sessionTitle,
+      date: DateTime.now(),
+      durationMinutes: 0, // Duration is unknown for manual completion
+      mood: 0,
+      reflection: '',
+    );
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProgressPage(
+          showFeedbackForm: true,
+          newSessionLog: sessionLog,
+        ),
+      ),
+    );
   }
 
   @override
@@ -133,7 +154,6 @@ class _SchedulePageState extends State<SchedulePage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 30),
                 const Text(
                   "Daily Practice Schedule",
@@ -362,6 +382,22 @@ class _SchedulePageState extends State<SchedulePage> {
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => _markAsDone(title),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepOrange,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    textStyle: const TextStyle(fontSize: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Mark as Done'),
                 ),
               ],
             ),
