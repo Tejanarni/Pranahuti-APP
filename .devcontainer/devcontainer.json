@@ -1,0 +1,23 @@
+{
+  // A pre-built image with the Flutter SDK and its dependencies (like Android tools)
+  "image": "mcr.microsoft.com/devcontainers/universal:latest",
+  
+  // Customizations to install tools and VS Code extensions
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dart-code.dart-code",
+        "dart-code.flutter"
+      ]
+    }
+  },
+
+  // Setup Commands (to install Chrome for the web runner)
+  "postCreateCommand": "sudo apt update && sudo apt install -y wget && wget -qO- https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg && echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main\" | sudo tee /etc/apt/sources.list.d/google-chrome.list > /dev/null && sudo apt update && sudo apt install -y google-chrome-stable",
+
+  // Port Forwarding for the Web App (the Flutter Web server)
+  "forwardPorts": [44963],
+  
+  // Set the default working directory to your project root
+  "workspaceFolder": "/workspaces/pran-med-main"
+}
