@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:innerpeaceguide/guide_page.dart';
+import 'package:http/http.dart' as http;
+import 'guide_page.dart';
 import 'knowledge_page.dart';
 import 'progress.dart';
 import 'schedule_page.dart';
 import 'guided_sessions_page.dart';
-import 'bottom_nav_bar.dart'; // <-- IMPORT YOUR NEW FILE
+import 'bottom_nav_bar.dart';
 
 void main() {
   runApp(PranahutiApp());
@@ -37,8 +38,7 @@ class _HomePageState extends State<HomePage>
   final Color cardText = const Color(0xFF7A4E00);
   final Color timeChipColor = const Color(0xFFF6F3DC);
 
-  // Define the current index for this page
-  final int _currentIndex = 0; // Home is at index 0
+  final int _currentIndex = 0;
 
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -63,6 +63,40 @@ class _HomePageState extends State<HomePage>
     super.dispose();
   }
 
+  // ✅ Updated fetch function for “Today’s Inspiration”
+  Future<String> fetchDailyMessage() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://sriramchandra.in/daily_messages.php'),
+      );
+
+      if (response.statusCode == 200) {
+        final html = response.body;
+
+        // ✅ Extract message inside <p style="font-size:22px; color:#C00; ">
+        final match = RegExp(
+          r'<p[^>]*style="font-size:22px; color:#C00; ?"[^>]*>(.*?)</p>',
+          dotAll: true,
+        ).firstMatch(html);
+
+        if (match != null) {
+          final rawText = match.group(1)!;
+          final cleaned = rawText
+              .replaceAll(RegExp(r'<[^>]*>'), '') // remove HTML tags
+              .replaceAll('&nbsp;', ' ')
+              .trim();
+          return cleaned;
+        } else {
+          return "Stay centered in the heart. Peace will follow naturally.";
+        }
+      } else {
+        return "Failed to fetch message. Try again later.";
+      }
+    } catch (e) {
+      return "Error fetching today's inspiration.";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,52 +116,23 @@ class _HomePageState extends State<HomePage>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 36),
+                // ---------- HEADER ----------
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [Color(0xFFFFB52E), Color(0xFFFF9900)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
+                    Image.network(
+                      'https://sriramchandra.in/assets/img/finallogo.gif',
+                      height: 48,
+                      width: 48,
                     ),
                     const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          "Pranahuti",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF7A4E00),
-                          ),
-                        ),
-                        Text(
-                          "Divine Practice Companion",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFFE67300),
-                          ),
-                        ),
-                      ],
+                    const Text(
+                      "Pranahuti",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF7A4E00),
+                      ),
                     ),
                   ],
                 ),
@@ -161,9 +166,8 @@ class _HomePageState extends State<HomePage>
                   builder: (context, constraints) {
                     final screenWidth = constraints.maxWidth;
                     final isSmallScreen = screenWidth < 600;
-                    final cardWidth = isSmallScreen
-                        ? screenWidth
-                        : (screenWidth / 2) - 24;
+                    final cardWidth =
+                    isSmallScreen ? screenWidth : (screenWidth / 2) - 24;
                     return Wrap(
                       spacing: 16,
                       runSpacing: 16,
@@ -182,7 +186,7 @@ class _HomePageState extends State<HomePage>
           ),
         ),
       ),
-      bottomNavigationBar: buildBottomNavigationBar(context, _currentIndex), // <-- UPDATED LINE
+      bottomNavigationBar: buildBottomNavigationBar(context, _currentIndex),
     );
   }
 
@@ -232,14 +236,15 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+  // ✅ Dynamic “Today’s Inspiration” card
   Widget _buildInspirationCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text(
+        children: [
+          const Text(
             "Today's Inspiration",
             style: TextStyle(
               fontSize: 16,
@@ -247,17 +252,37 @@ class _HomePageState extends State<HomePage>
               color: Color(0xFF7A4E00),
             ),
           ),
-          SizedBox(height: 16),
-          Text(
-            '"Surrender is the only prayer. When you surrender, you become one with the Divine flow."',
-            style: TextStyle(
-              fontSize: 13,
-              fontStyle: FontStyle.italic,
-              color: Color(0xFFAD5B00),
-            ),
+          const SizedBox(height: 16),
+          FutureBuilder<String>(
+            future: fetchDailyMessage(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Colors.orange),
+                );
+              } else if (snapshot.hasError) {
+                return const Text(
+                  "Error loading inspiration.",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    color: Color(0xFFAD5B00),
+                  ),
+                );
+              } else {
+                return Text(
+                  '"${snapshot.data}"',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    color: Color(0xFFAD5B00),
+                  ),
+                );
+              }
+            },
           ),
-          SizedBox(height: 8),
-          Text(
+          const SizedBox(height: 8),
+          const Text(
             "- Master's Teaching",
             style: TextStyle(fontSize: 13, color: Color(0xFFAD5B00)),
           ),
